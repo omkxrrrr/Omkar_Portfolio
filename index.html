@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Omkar Wadekar — Full-Stack Developer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0e14; --bg2:#0f1420; --panel:#111826; --border:#1e2a3a;
+  --accent:#64ffda; --accent2:#ff6b9d; --text:#c9d6e3; --text-dim:#5f7089; --text-bright:#eef4fb;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{scroll-behavior:smooth; scroll-padding-top:env(safe-area-inset-top,0px); cursor:none;}
+body{background:var(--bg); color:var(--text); font-family:'JetBrains Mono', 'Courier New', monospace; overflow-x:hidden; line-height:1.6; cursor:none;}
+a, button, .btn, .badge, .dots span{cursor:none;}
+::selection{background:var(--accent); color:#0a0e14;}
+a{color:var(--accent); text-decoration:none;}
+
+#bg-canvas{position:fixed; inset:0; width:100%; height:100%; z-index:0; opacity:0.35; pointer-events:none;}
+.cur-dot, .cur-ring{position:fixed; top:0; left:0; border-radius:50%; pointer-events:none; z-index:999; transform:translate(-50%,-50%);}
+.cur-dot{width:6px; height:6px; background:var(--accent); box-shadow:0 0 8px var(--accent);}
+.cur-ring{width:28px; height:28px; border:1px solid var(--accent); opacity:.6; transition:width .15s,height .15s,opacity .15s,border-color .15s;}
+.cur-ring.hover{width:44px; height:44px; border-color:var(--accent2);}
+@media(max-width:900px){ html,body{cursor:auto;} a,button,.btn,.badge,.dots span{cursor:pointer;} .cur-dot,.cur-ring{display:none;} }
+.progress{position:fixed; top:env(safe-area-inset-top,0px); left:0; height:3px; background:linear-gradient(90deg,var(--accent),var(--accent2)); z-index:200; width:0%; transition:width .1s;}
+
+/* Nav */
+nav{position:fixed; top:env(safe-area-inset-top,0px); right:0; z-index:150; padding:20px 24px; display:flex; gap:18px; font-size:12px;}
+nav a{color:var(--text-dim); letter-spacing:.5px; transition:color .2s;}
+nav a.active, nav a:hover{color:var(--accent);}
+@media(max-width:640px){ nav{display:none;} }
+
+.dots{position:fixed; right:24px; top:50%; transform:translateY(-50%); z-index:150; display:flex; flex-direction:column; gap:14px;}
+.dots span{width:8px; height:8px; border-radius:50%; border:1px solid var(--text-dim); display:block; cursor:pointer; transition:.2s;}
+.dots span.active{background:var(--accent); border-color:var(--accent); box-shadow:0 0 8px var(--accent);}
+@media(max-width:640px){ .dots{display:none;} }
+
+section{padding:60px 8vw; display:flex; flex-direction:column; justify-content:center; position:relative; z-index:1;}
+#hero{min-height:88vh; padding-top:110px;}
+nav, .dots, .progress{z-index:150;}
+.reveal{opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease;}
+.reveal.visible{opacity:1; transform:translateY(0);}
+
+/* HERO */
+#hero{background:radial-gradient(circle at 20% 20%, #0f2030 0%, var(--bg) 60%); align-items:flex-start;}
+.prompt{color:var(--accent); font-size:14px; margin-bottom:10px;}
+.prompt .cursor{display:inline-block; width:8px; height:16px; background:var(--accent); animation:blink 1s step-start infinite; vertical-align:middle;}
+@keyframes blink{50%{opacity:0;}}
+h1.name{font-size:clamp(34px,7vw,72px); color:var(--text-bright); font-weight:800; line-height:1.1;}
+h1.name span{color:var(--accent);}
+.role-line{font-size:clamp(14px,2.5vw,20px); color:var(--text-dim); margin:14px 0 26px; min-height:28px;}
+.role-line #typed{color:var(--accent2); border-right:2px solid var(--accent2);}
+.contact-row{display:flex; flex-direction:column; gap:8px; font-size:13px; color:var(--text-dim); margin-bottom:30px;}
+.contact-row a{color:var(--text);}
+.btn-row{display:flex; gap:14px; flex-wrap:wrap;}
+.btn{border:1px solid var(--accent); color:var(--accent); padding:10px 20px; font-size:13px; border-radius:4px; transition:.2s;}
+.btn:hover{background:var(--accent); color:#0a0e14;}
+.btn.alt{border-color:var(--text-dim); color:var(--text-dim);}
+.btn.alt:hover{border-color:var(--accent2); color:var(--accent2); background:transparent;}
+.btn.cv{border-color:var(--accent2); color:var(--accent2);}
+.btn.cv:hover{background:var(--accent2); color:#0a0e14;}
+
+.tag{color:var(--accent); font-size:12px; letter-spacing:2px; text-transform:uppercase;}
+h2.title{font-size:clamp(24px,4vw,38px); color:var(--text-bright); margin:8px 0 30px;}
+
+/* panel/card look */
+.panel{background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:22px 24px; position:relative;}
+.panel::before{content:'● ● ●'; position:absolute; top:10px; left:14px; font-size:9px; color:var(--text-dim); letter-spacing:3px;}
+.panel-body{margin-top:16px;}
+
+#about .panel{max-width:720px;}
+#about p{font-size:15px;}
+
+/* skills */
+.skill-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:18px;}
+.skill-cat h3{color:var(--accent2); font-size:13px; letter-spacing:1px; text-transform:uppercase; margin-bottom:12px;}
+.badges{display:flex; flex-wrap:wrap; gap:8px;}
+.badge{border:1px solid var(--border); background:var(--bg2); color:var(--text); font-size:12px; padding:6px 12px; border-radius:20px; transition:.2s;}
+.badge:hover{border-color:var(--accent); color:var(--accent); transform:translateY(-2px);}
+
+/* experience timeline */
+.timeline-item{border-left:2px solid var(--border); padding-left:22px; position:relative; max-width:760px;}
+.timeline-item::before{content:''; position:absolute; left:-7px; top:4px; width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent);}
+.timeline-item h3{color:var(--text-bright); font-size:18px;}
+.timeline-item .meta{color:var(--text-dim); font-size:12px; margin:4px 0 14px;}
+.timeline-item ul{padding-left:18px; font-size:14px; color:var(--text);}
+.timeline-item li{margin-bottom:8px;}
+
+/* projects */
+.proj-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:22px; max-width:1100px;}
+.proj-card h3{color:var(--text-bright); font-size:17px; margin-bottom:2px;}
+.proj-card .stack{color:var(--accent2); font-size:11px; margin-bottom:10px; display:block;}
+.proj-card ul{padding-left:16px; font-size:13px; margin-top:8px;}
+.proj-card li{margin-bottom:6px;}
+.proj-card a.link{display:inline-block; margin-top:12px; font-size:12px;}
+
+/* education/footer */
+.edu-row{display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; max-width:760px;}
+footer{padding:50px 8vw; text-align:center; color:var(--text-dim); font-size:12px; border-top:1px solid var(--border);}
+footer a{color:var(--accent);}
+
+@media(max-width:640px){
+  section{padding:44px 6vw;}
+  #hero{padding-top:100px; min-height:auto;}
+  .skill-grid, .proj-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<nav>
+  <a href="#hero" data-sec="hero">~/home</a>
+  <a href="#about" data-sec="about">about</a>
+  <a href="#skills" data-sec="skills">skills</a>
+  <a href="#experience" data-sec="experience">experience</a>
+  <a href="#projects" data-sec="projects">projects</a>
+  <a href="#contact" data-sec="contact">contact</a>
+</nav>
+<div class="dots" id="dots"></div>
+
+<section id="hero">
+  <canvas id="bg-canvas"></canvas>
+  <div class="prompt">omkar@portfolio:~$ whoami<span class="cursor"></span></div>
+  <h1 class="name">OMKAR <span>WADEKAR</span></h1>
+  <div class="role-line">&gt; <span id="typed"></span></div>
+  <div class="contact-row reveal">
+    <span>📍 Prabhadevi, Mumbai</span>
+    <a href="mailto:omkar.wadekar.06@gmail.com">omkar.wadekar.06@gmail.com</a>
+    <a href="https://github.com/omkxrrrr" target="_blank">github.com/omkxrrrr</a>
+    <a href="https://linkedin.com/in/omkar-wadekar" target="_blank">linkedin.com/in/omkar-wadekar</a>
+  </div>
+  <div class="btn-row reveal">
+    <a class="btn" href="#projects">// view_projects()</a>
+    <a class="btn alt" href="#contact">// get_in_touch()</a>
+    <a class="btn cv" href="Omkar_Wadekar_CV.pdf" download>⬇ download_resume.pdf</a>
+  </div>
+</section>
+
+<section id="about">
+  <div class="tag reveal">01 // about</div>
+  <h2 class="title reveal">Summary</h2>
+  <div class="panel reveal">
+    <div class="panel-body">
+      <p>Full-stack developer with 2+ years of hands-on project experience across React Native/Expo, React, and backend systems spanning .NET and Python. Comfortable owning a feature end-to-end — from payment integrations and state management to root-causing subtle, multi-layered production bugs. Has independently built and shipped multiple complete systems, including a business ERP and a customer-facing e-commerce platform.</p>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <div class="tag reveal">02 // skills</div>
+  <h2 class="title reveal">Tech Stack</h2>
+  <div class="skill-grid">
+    <div class="skill-cat reveal">
+      <h3>Languages</h3>
+      <div class="badges">
+        <span class="badge">TypeScript</span><span class="badge">JavaScript</span><span class="badge">Python</span>
+      </div>
+    </div>
+    <div class="skill-cat reveal">
+      <h3>Frontend</h3>
+      <div class="badges">
+        <span class="badge">React</span><span class="badge">React Native</span><span class="badge">Expo</span>
+        <span class="badge">Redux Toolkit</span><span class="badge">Framer Motion</span><span class="badge">GSAP</span><span class="badge">Tailwind</span>
+      </div>
+    </div>
+    <div class="skill-cat reveal">
+      <h3>Backend</h3>
+      <div class="badges">
+        <span class="badge">.NET</span><span class="badge">FastAPI</span><span class="badge">Firebase</span>
+        <span class="badge">Google Apps Script</span><span class="badge">MySQL</span>
+      </div>
+    </div>
+    <div class="skill-cat reveal">
+      <h3>Tools & Infra</h3>
+      <div class="badges">
+        <span class="badge">Git</span><span class="badge">EAS Build</span><span class="badge">Linux</span>
+        <span class="badge">Vitest</span><span class="badge">Playwright</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="tag reveal">03 // experience</div>
+  <h2 class="title reveal">Work History</h2>
+  <div class="timeline-item reveal">
+    <h3>Frontend Developer — VAS Infotec</h3>
+    <div class="meta">Apr 9, 2026 – Present</div>
+    <ul>
+      <li>Own a dedicated branch on NEETMobileApp, working semi-independently within the team's Expo/EAS build pipeline.</li>
+      <li>Root-caused and fixed production bugs spanning frontend state (Redux persistence gaps), backend data joins (stale subscription status), and cross-platform file-upload handling.</li>
+      <li>Conducted structured QA testing across app screens, producing test-case documentation and bug tracking for the team.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="tag reveal">04 // projects</div>
+  <h2 class="title reveal">Things I've Built</h2>
+  <div class="proj-grid">
+    <div class="panel proj-card reveal">
+      <div class="panel-body">
+        <h3>NEET India</h3>
+        <span class="stack">React Native / Expo · Redux Toolkit · TypeScript · .NET / MySQL</span>
+        <p style="font-size:13px;">Exam-prep platform live on Google Play.</p>
+        <ul>
+          <li>Registration/OTP flows, Razorpay subscriptions, full quiz/scoring engine.</li>
+          <li>Diagnosed a multi-layered profile-picture upload bug — traced silent data loss through a type-validation layer and an Axios header-merge quirk.</li>
+          <li>Built an AI-generated MCQ feature using OCR + LLM providers via a Python FastAPI service.</li>
+          <li>Fixed subscription-gating, proration, and dashboard-refresh bugs.</li>
+        </ul>
+        <a class="link" href="https://play.google.com/store" target="_blank">↗ Google Play</a>
+      </div>
+    </div>
+    <div class="panel proj-card reveal">
+      <div class="panel-body">
+        <h3>Mazz — Business Management System</h3>
+        <span class="stack">React 19 · Redux Toolkit Query · Firebase</span>
+        <p style="font-size:13px;">Internal ERP-style web app.</p>
+        <ul>
+          <li>Sales invoicing, purchases, stock/warehouse transfers, bank/party ledgers, expenses.</li>
+          <li>Role-based admin & developer panels with DB inspector and access logs.</li>
+          <li>Sales analytics, printable/PDF invoices, exportable reports.</li>
+          <li>Multi-location payment flows and inter-warehouse stock transfers.</li>
+        </ul>
+        <a class="link" href="https://s-r-enterprise.vercel.app" target="_blank">↗ Live Site</a>
+      </div>
+    </div>
+    <div class="panel proj-card reveal">
+      <div class="panel-body">
+        <h3>Patisserie Noir</h3>
+        <span class="stack">React · Zustand · Tailwind · Google Apps Script</span>
+        <p style="font-size:13px;">Cake ordering platform with admin backend.</p>
+        <ul>
+          <li>Catalog, cake customizer, delivery slot picker, coupons, PDF invoice + WhatsApp confirmation.</li>
+          <li>Full backend on Google Apps Script over Google Sheets (14 sheets).</li>
+          <li>Admin panel with CRM tools and a revenue/analytics dashboard.</li>
+          <li>Content/blog CMS with draft/publish workflow, tested with Vitest + Playwright.</li>
+        </ul>
+        <a class="link" href="https://patisserie-noir-snowy.vercel.app" target="_blank">↗ Live Site</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="tag reveal">05 // education & contact</div>
+  <h2 class="title reveal">Let's Connect</h2>
+  <div class="panel reveal" style="max-width:760px;">
+    <div class="panel-body">
+      <div class="edu-row">
+        <div>
+          <strong style="color:var(--text-bright);">B.Sc. Information Technology</strong><br>
+          <span style="font-size:13px;">Kirti M. Doongursee College, University of Mumbai</span>
+        </div>
+        <div style="color:var(--text-dim); font-size:12px;">Final year — result awaited</div>
+      </div>
+    </div>
+  </div>
+  <div class="btn-row reveal" style="margin-top:26px;">
+    <a class="btn" href="mailto:omkar.wadekar.06@gmail.com">✉ Email</a>
+    <a class="btn alt" href="tel:+919869436539">☎ +91 98694 36539</a>
+    <a class="btn alt" href="https://github.com/omkxrrrr" target="_blank">GitHub</a>
+    <a class="btn alt" href="https://linkedin.com/in/omkar-wadekar" target="_blank">LinkedIn</a>
+    <a class="btn cv" href="Omkar_Wadekar_CV.pdf" download>⬇ Download CV</a>
+  </div>
+</section>
+
+<footer>
+  omkar@portfolio:~$ echo "thanks for scrolling" — © 2026 Omkar Wadekar
+</footer>
+
+<script>
+// typing effect
+const roles = ["Full-Stack Developer", "React Native • React • TypeScript • .NET", "Building end-to-end, shipping real products"];
+const typedEl = document.getElementById('typed');
+let ri=0, ci=0, deleting=false;
+function type(){
+  const word = roles[ri];
+  if(!deleting){
+    ci++; typedEl.textContent = word.slice(0,ci);
+    if(ci===word.length){ deleting=true; setTimeout(type,1400); return; }
+  } else {
+    ci--; typedEl.textContent = word.slice(0,ci);
+    if(ci===0){ deleting=false; ri=(ri+1)%roles.length; }
+  }
+  setTimeout(type, deleting?35:65);
+}
+type();
+
+// scroll progress
+const progress = document.getElementById('progress');
+window.addEventListener('scroll', ()=>{
+  const h = document.documentElement;
+  const pct = (h.scrollTop)/(h.scrollHeight - h.clientHeight)*100;
+  progress.style.width = pct+'%';
+});
+
+// reveal on scroll
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('visible'); });
+},{threshold:0.15});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// nav active state + dots
+const sections = ['hero','about','skills','experience','projects','contact'];
+const dotsWrap = document.getElementById('dots');
+sections.forEach((id,i)=>{
+  const d = document.createElement('span');
+  d.dataset.sec = id;
+  d.onclick = ()=>document.getElementById(id).scrollIntoView({behavior:'smooth'});
+  dotsWrap.appendChild(d);
+});
+const navLinks = document.querySelectorAll('nav a');
+const dotEls = document.querySelectorAll('.dots span');
+const spy = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      navLinks.forEach(a=>a.classList.toggle('active', a.dataset.sec===e.target.id));
+      dotEls.forEach(d=>d.classList.toggle('active', d.dataset.sec===e.target.id));
+    }
+  });
+},{threshold:0.5});
+sections.forEach(id=>spy.observe(document.getElementById(id)));
+
+/* ---------- animated dot-grid background ---------- */
+(function(){
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let w,h,dots=[];
+  const spacing = 42;
+  function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+    dots = [];
+    for(let x=0;x<w+spacing;x+=spacing){
+      for(let y=0;y<h+spacing;y+=spacing){
+        dots.push({x, y, base:Math.random()*Math.PI*2});
+      }
+    }
+  }
+  window.addEventListener('resize', resize);
+  resize();
+  let t=0;
+  function draw(){
+    t+=0.015;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle = '#64ffda';
+    dots.forEach(d=>{
+      const pulse = (Math.sin(t+d.base)+1)/2; // 0..1
+      const r = 1 + pulse*1.4;
+      ctx.globalAlpha = 0.15 + pulse*0.35;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, r, 0, Math.PI*2);
+      ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+/* ---------- custom cursor ---------- */
+(function(){
+  if(window.matchMedia('(max-width:900px)').matches) return;
+  const dot = document.createElement('div'); dot.className='cur-dot';
+  const ring = document.createElement('div'); ring.className='cur-ring';
+  document.body.append(dot, ring);
+  let rx=0, ry=0, mx=0, my=0;
+  window.addEventListener('mousemove', e=>{
+    mx=e.clientX; my=e.clientY;
+    dot.style.left = mx+'px'; dot.style.top = my+'px';
+  });
+  function loop(){
+    rx += (mx-rx)*0.18; ry += (my-ry)*0.18;
+    ring.style.left = rx+'px'; ring.style.top = ry+'px';
+    requestAnimationFrame(loop);
+  }
+  loop();
+  document.querySelectorAll('a,button,.badge,input,.dots span').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>ring.classList.add('hover'));
+    el.addEventListener('mouseleave', ()=>ring.classList.remove('hover'));
+  });
+})();
+
+/* ---------- console easter egg ---------- */
+console.log('%c' +
+'  ___  __  __ _  __    _    ____  \n' +
+' / _ \\|  \\/  | |/ /   / \\  |  _ \\ \n' +
+'| | | | |\\/| | \' /   / _ \\ | |_) |\n' +
+'| |_| | |  | | . \\  / ___ \\|  _ < \n' +
+' \\___/|_|  |_|_|\\_\\/_/   \\_\\_| \\_\\',
+'color:#64ffda; font-family:monospace; font-size:10px;');
+console.log('%cLooking under the hood, huh? Respect. 🕵️', 'color:#ff6b9d; font-size:13px; font-weight:bold;');
+console.log('%cIf you found a bug here, it is a feature. If you found a feature, I definitely meant to do that.', 'color:#c9d6e3; font-size:12px;');
+console.log('%cLet us talk: omkar.wadekar.06@gmail.com', 'color:#64ffda; font-size:12px;');
+</script>
+</body>
+</html>
